@@ -11,7 +11,9 @@
             <h2 class="text-primary"> Lista de categorías</h2>
         </div>
         <div class="col-6">
-            <a asp-controller="Categoria" asp-action="Crear" class="btn btn-primary">Nueva categoria</a>
+            <a asp-controller="Categoria" asp-action="Crear" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i> Nueva categoria
+            </a>
         </div>
     </div>
     <br />  
@@ -31,7 +33,12 @@
                 {   <tr>
                         <th width="50%">@item.NombreCategoria</th>
                         <th width="30%">@item.MostrarOrden</th>
-                        <th></th>
+                        <th class="text-center">
+                            <div class="w-75 btn-group" role="group">
+                                <a asp-controller="Categoria" asp-action="Editar" asp-route-Id="@item.Id" class="btn btn-primary mx-2"><i class="fa-solid fa-pen-to-square"></i></a>
+                                <a asp-controller="Categoria" asp-action="Eliminar" asp-route-Id="@item.Id" class="btn btn-danger mx-2"><i class="fa-solid fa-trash"></i></a>
+                            </div>
+                        </th>
                     </tr>
                 }
             </tbody>
