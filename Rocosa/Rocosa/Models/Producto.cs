@@ -19,17 +19,17 @@ namespace Rocosa.Models
         public string DescripcionProducto { get; set; }
 
         [Required(ErrorMessage = "El precio del producto es requerido")]
-        [Range(1, double.MaxValue, ErrorMessage = "")]
+        [Range(1, double.MaxValue, ErrorMessage = "El precio debe ser mayor a cero")]
         public double Precio { get; set; }  
 
-        public string ImagenUrl { get; set; }
+        public string? ImagenUrl { get; set; }
 
         //Foreign Key
         public int CategoriaId { get; set; }
         [ForeignKey("CategoriaId")]
-        public virtual Categoria categoria { get; set; }   
+        public virtual Categoria? Categoria { get; set; }   
         public int TipoAplicacionId {  get; set; }
         [ForeignKey("TipoAplicacionId")]
-        public virtual TipoAplicacion tipoAplicacion { get; set; }
+        public virtual TipoAplicacion? TipoAplicacion { get; set; }
     }
 }
