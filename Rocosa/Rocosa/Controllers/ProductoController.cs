@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using NuGet.Packaging.Signing;
 using NuGet.Protocol;
 using Rocosa.Datos;
@@ -16,7 +17,7 @@ namespace Rocosa.Controllers
         public ProductoController(ApplicationDBContext db, IWebHostEnvironment webHostEnvironment)
         {
             _db = db;
-            _webHostEnvironment = webHostEnvironment;   
+            _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index()
         {
@@ -24,7 +25,7 @@ namespace Rocosa.Controllers
                                                        .Include(t => t.TipoAplicacion);
             return View(lista);
         }
-         
+
         //Get Upsert
         public IActionResult Upsert(int? Id)
         {
@@ -40,26 +41,26 @@ namespace Rocosa.Controllers
                 {
                     Text = t.Nombre,
                     Value = t.Id.ToString()
-                })              
+                })
             };
-            if(Id== null) //Creamos producto
+            if (Id == null) //Creamos producto
             {
                 return View(productoVM);  //Enviamos el producto vacío, para llenarlo 
             }
             else
             {
                 productoVM.Producto = _db.Producto.Find(Id);
-                
+
                 if (productoVM.Producto == null)
                     return NotFound();
-                
+
                 return View(productoVM); //Enviamos el producto con sus datos
             }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Upsert (ProductoVM productoVM)
+        public IActionResult Upsert(ProductoVM productoVM)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +86,7 @@ namespace Rocosa.Controllers
                     //Actualizar producto
                     var objProducto = _db.Producto.AsNoTracking().FirstOrDefault(p => p.Id == productoVM.Producto.Id);
 
-                    if(files.Count > 0) //Si está intentando cargr una nueva img
+                    if (files.Count > 0) //Si está intentando cargr una nueva img
                     {
                         string upload = webRootPath + WC.ImagenRuta; //ruta donde guardaremos la img
                         string fileName = Guid.NewGuid().ToString(); //Para que le asigne un id a la img que se guardara
@@ -128,7 +129,49 @@ namespace Rocosa.Controllers
                 });
                 return View(productoVM);
             }
-  
+
         }
+
+        //Get
+        public IActionResult Eliminar(int? Id)
+        {
+            if (Id == null || Id == 0)
+            {
+                return NotFound();
+            }
+
+            Producto producto = _db.Producto.Include(c => c.Categoria)
+                                            .Include(t => t.TipoAplicacion)
+                                            .FirstOrDefault(p => p.Id == Id);
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            return View(producto);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Eliminar (Producto producto) 
+        { 
+            if (producto == null)
+            {
+                return NotFound();
+            }
+
+            //Eliminar primero su imagen del directorio
+            string upload = _webHostEnvironment.WebRootPath + WC.ImagenRuta;
+            var anteriorFile = Path.Combine(upload, producto.ImagenUrl);
+            if (System.IO.File.Exists(anteriorFile))
+            {
+                System.IO.File.Delete(anteriorFile);    
+            }
+            //Ahora si, eliminamos producto
+            _db.Producto.Remove(producto);
+            _db.SaveChanges();
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }
