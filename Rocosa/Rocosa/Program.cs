@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Rocosa.Datos;
 
@@ -6,7 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));   
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDefaultIdentity<IdentityUser>()
+                .AddEntityFrameworkStores<ApplicationDBContext>();  
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
@@ -32,9 +35,11 @@ app.UseStaticFiles(); //Midde.
 
 app.UseRouting(); //Midd.
 
+app.UseAuthentication(); 
 app.UseAuthorization();
 app.UseSession();
 
+app.MapRazorPages();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");  
