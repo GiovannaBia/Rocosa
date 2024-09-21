@@ -1,11 +1,14 @@
 ﻿@page
 @model RegisterModel
-@{
-    ViewData["Title"] = "Register";
+
+@if (User.IsInRole(Rocosa.WC.AdminRole))
+{
+    <h1>Registrar un usuario administrador</h1>
 }
-
-<h1>@ViewData["Title"]</h1>
-
+else
+{
+    <h1>Registrarse</h1>
+}
 <div class="row">
     <div class="col-md-4">
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
@@ -37,7 +40,14 @@
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+            @if (User.IsInRole(Rocosa.WC.AdminRole))
+            {
+                <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-warning">Registrar nuevo administrador</button>
+            }
+            else
+            {
+                <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Registrar</button>                
+            }
         </form>
     </div>
     <div class="col-md-6 col-md-offset-2">

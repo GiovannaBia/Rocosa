@@ -26,12 +26,14 @@ namespace Rocosa.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
+            RoleManager<IdentityRole> roleManager,
             UserManager<IdentityUser> userManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
@@ -39,6 +41,7 @@ namespace Rocosa.Areas.Identity.Pages.Account
             IEmailSender emailSender)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
@@ -107,6 +110,13 @@ namespace Rocosa.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+
+            if (!await _roleManager.RoleExistsAsync(WC.AdminRole))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(WC.AdminRole));
+                await _roleManager.CreateAsync(new IdentityRole(WC.ClienteRole));
+            }
+
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -130,8 +140,18 @@ namespace Rocosa.Areas.Identity.Pages.Account
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
-                if (result.Succeeded)
+                if (result.Succeeded) 
                 {
+                    if (User.IsInRole(WC.AdminRole))
+                    {
+                        await _userManager.AddToRoleAsync(user, WC.AdminRole);
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, WC.ClienteRole);
+                    }
+                       
+
                     _logger.LogInformation("User created a new account with password.");
 
                     var userId = await _userManager.GetUserIdAsync(user);
