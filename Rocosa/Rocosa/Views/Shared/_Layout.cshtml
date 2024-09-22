@@ -48,7 +48,7 @@
                         <li>
                             @if(HttpContextAccessor.HttpContext.Session.Get<List<CarroCompras>>(WC.SessionCarroCompras) != null)
                             {
-                                <a asp-action="Index" asp-controller="CarroCompras" class="nav-link">
+                                <a asp-controller="Carro" asp-action="Index" class="nav-link">
                                     @{
                                         var count = HttpContextAccessor.HttpContext.Session.Get<List<CarroCompras>>(WC.SessionCarroCompras).Count();
                                     }
