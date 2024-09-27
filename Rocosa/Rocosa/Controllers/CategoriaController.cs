@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Rocosa.Datos;
 using Rocosa.Models;
 
 namespace Rocosa.Controllers
 {
+    [Authorize(Roles = WC.AdminRole)]
     public class CategoriaController : Controller
     {
         private readonly ApplicationDBContext _db;

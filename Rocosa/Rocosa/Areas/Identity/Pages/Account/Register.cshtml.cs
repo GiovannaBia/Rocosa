@@ -172,7 +172,15 @@ namespace Rocosa.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        if (!User.IsInRole(WC.AdminRole)) 
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index"); //Si es administrador, no se inicia la sesion, se redirige a index nomas
+                        }
+                      
                         return LocalRedirect(returnUrl);
                     }
                 }

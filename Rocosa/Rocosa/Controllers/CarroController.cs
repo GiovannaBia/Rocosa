@@ -56,9 +56,23 @@ namespace Rocosa.Controllers
             productoUsuarioVM = new ProductoUsuarioVM()
             {
                 UsuarioAplicacion = _db.UsuarioAplicacion.FirstOrDefault(u => u.Id == claim.Value),
-                ProductoLista = prodList,
+                ProductoLista = prodList.ToList()
             };
             return View(productoUsuarioVM);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Resumen")]
+        public IActionResult ResumenPost(ProductoUsuarioVM productoUsuarioVM)
+        {
+            return RedirectToAction(nameof(Confirmacion));
+        }
+
+        public IActionResult Confirmacion()
+        {
+            HttpContext.Session.Clear(); //Limpio la sesion, el carro 
+            return View();  
         }
 
         public IActionResult Remover (int Id)

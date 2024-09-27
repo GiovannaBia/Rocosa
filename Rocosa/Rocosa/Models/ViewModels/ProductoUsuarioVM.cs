@@ -7,6 +7,6 @@
                 ProductoLista = new List<Producto>();
         }
         public UsuarioAplicacion UsuarioAplicacion { get; set; }    
-        public IEnumerable<Producto> ProductoLista { get; set; }    
+        public IList<Producto> ProductoLista { get; set; }    
     }
 }
