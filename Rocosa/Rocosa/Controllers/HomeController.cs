@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Rocosa.Datos;
-using Rocosa.Models;
-using Rocosa.Models.ViewModels;
-using Rocosa.Utilidades;
+using Rocosa_AccesoDatos.Datos;
+using Rocosa_Modelos;
+using Rocosa_Modelos.ViewModels;
+using Rocosa_Utilidades;
 
 namespace Rocosa.Controllers
 {

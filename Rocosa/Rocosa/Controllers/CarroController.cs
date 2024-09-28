@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Rocosa.Datos;
-using Rocosa.Models;
-using Rocosa.Models.ViewModels;
-using Rocosa.Utilidades;
+using Rocosa_AccesoDatos.Datos;
+using Rocosa_Modelos;
+using Rocosa_Modelos.ViewModels;
+using Rocosa_Utilidades;
 using System.Security.Claims;
 
 namespace Rocosa.Controllers

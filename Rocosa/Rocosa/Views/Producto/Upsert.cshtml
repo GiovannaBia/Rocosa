@@ -1,4 +1,4 @@
-﻿@model Rocosa.Models.ViewModels.ProductoVM
+﻿@model Rocosa_Modelos.ViewModels.ProductoVM
 
 @{
     var titulo = "Crear nuevo producto";
@@ -81,7 +81,7 @@
             @if(Model.Producto.Id != 0)
             {
                 <div class="col-4">
-                    <img src="@WC.ImagenRuta@Model.Producto.ImagenUrl" width="100%" style="border-radius:5px; border:1px solid #1111" />
+                    <img src="@Rocosa_Utilidades.WC.ImagenRuta@Model.Producto.ImagenUrl" width="100%" style="border-radius:5px; border:1px solid #1111" />
                 </div>
             }
            

@@ -1,4 +1,4 @@
-﻿@model Rocosa.Models.Producto
+﻿@model Rocosa_Modelos.Producto
 
 @{
     var titulo = "Esta seguro que desea eliminar este producto?";
@@ -67,7 +67,7 @@
             @if (Model.Id != 0)
             {
                 <div class="col-4">
-                    <img src="@WC.ImagenRuta@Model.ImagenUrl" width="100%" style="border-radius:5px; border:1px solid #1111" />
+                    <img src="@Rocosa_Utilidades.WC.ImagenRuta@Model.ImagenUrl" width="100%" style="border-radius:5px; border:1px solid #1111" />
                 </div>
             }
 

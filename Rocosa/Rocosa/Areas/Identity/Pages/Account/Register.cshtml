@@ -1,7 +1,7 @@
 ﻿@page
 @model RegisterModel
 
-@if (User.IsInRole(Rocosa.WC.AdminRole))
+@if (User.IsInRole(Rocosa_Utilidades.WC.AdminRole))
 {
     <h1>Registrar un usuario administrador</h1>
 }
@@ -40,7 +40,7 @@ else
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
-            @if (User.IsInRole(Rocosa.WC.AdminRole))
+            @if (User.IsInRole(Rocosa_Utilidades.WC.AdminRole))
             {
                 <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-warning">Registrar nuevo administrador</button>
             }

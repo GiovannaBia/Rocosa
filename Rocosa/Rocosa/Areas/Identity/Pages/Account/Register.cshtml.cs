@@ -18,7 +18,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Rocosa.Models;
+using Rocosa_Modelos;
+using Rocosa_Utilidades;
 
 namespace Rocosa.Areas.Identity.Pages.Account
 {

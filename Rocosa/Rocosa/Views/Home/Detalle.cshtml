@@ -1,4 +1,4 @@
-﻿@model Rocosa.Models.ViewModels.DetalleVM
+﻿@model Rocosa_Modelos.ViewModels.DetalleVM
 <div class="">
     <form method="post">
         <input asp-for="@Model.Producto.Id" hidden />
@@ -16,7 +16,7 @@
                     <div class="container rounded p-2">
                         <div class="row">
                             <div class="col-12 col-lg-4 p-1 text-center">
-                                <img src="@WC.ImagenRuta@Model.Producto.ImagenUrl" width="100%" class="rounded" />
+                                <img src="@Rocosa_Utilidades.WC.ImagenRuta@Model.Producto.ImagenUrl" width="100%" class="rounded" />
                             </div>
                             <div class="col-12 col-lg-8">
                                 <div class="row pl-3">

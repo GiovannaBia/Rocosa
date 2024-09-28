@@ -5,6 +5,12 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rocosa", "Rocosa\Rocosa.csproj", "{372923B0-E315-4687-916F-149076F6B163}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rocosa_Utilidades", "Rocosa_Utilidades\Rocosa_Utilidades.csproj", "{1F082C9E-B73A-45FC-9742-DC0BBFB4A7BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rocosa_Modelos", "Rocosa_Modelos\Rocosa_Modelos.csproj", "{17DEECFA-C9AC-45F6-84BF-5BA954C816FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rocosa_AccesoDatos", "Rocosa_AccesoDatos\Rocosa_AccesoDatos.csproj", "{3B7458CA-B3A2-4504-8132-4FC42DF6B948}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +21,18 @@ Global
 		{372923B0-E315-4687-916F-149076F6B163}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{372923B0-E315-4687-916F-149076F6B163}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{372923B0-E315-4687-916F-149076F6B163}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F082C9E-B73A-45FC-9742-DC0BBFB4A7BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F082C9E-B73A-45FC-9742-DC0BBFB4A7BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F082C9E-B73A-45FC-9742-DC0BBFB4A7BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F082C9E-B73A-45FC-9742-DC0BBFB4A7BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17DEECFA-C9AC-45F6-84BF-5BA954C816FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17DEECFA-C9AC-45F6-84BF-5BA954C816FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17DEECFA-C9AC-45F6-84BF-5BA954C816FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17DEECFA-C9AC-45F6-84BF-5BA954C816FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B7458CA-B3A2-4504-8132-4FC42DF6B948}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B7458CA-B3A2-4504-8132-4FC42DF6B948}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B7458CA-B3A2-4504-8132-4FC42DF6B948}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B7458CA-B3A2-4504-8132-4FC42DF6B948}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

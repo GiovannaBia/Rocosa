@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
-@using Rocosa.Utilidades
+@using Rocosa_Utilidades
 
 <!DOCTYPE html>
 <html lang="en">
@@ -41,7 +41,7 @@
                                     <li><a class="nav-link text-dark" asp-area="" asp-controller="Categoria" asp-action="Index">Categoria</a></li>
                                     <li><a class="nav-link text-dark" asp-area="" asp-controller="TipoAplicacion" asp-action="Index">Tipo de aplicacion</a></li>
                                     <li><a class="nav-link text-dark" asp-area="" asp-controller="Producto" asp-action="Index">Producto</a></li>
-                                    @if (User.IsInRole(Rocosa.WC.AdminRole))
+                                    @if (User.IsInRole(Rocosa_Utilidades.WC.AdminRole))
                                     {
                                         <li><a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Crear nuevo usuario</a></li>
                                     }
