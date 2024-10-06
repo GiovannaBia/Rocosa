@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pag
 using NuGet.Packaging.Signing;
 using NuGet.Protocol;
 using Rocosa_AccesoDatos.Datos;
+using Rocosa_AccesoDatos.Datos.Repositorio.IRepositorio;
 using Rocosa_Modelos;
 using Rocosa_Modelos.ViewModels;
 using Rocosa_Utilidades;
@@ -15,17 +16,18 @@ namespace Rocosa.Controllers
     [Authorize(Roles = WC.AdminRole)]
     public class ProductoController : Controller
     {
-        private readonly ApplicationDBContext _db;
+        private readonly IProductoRepositorio _prodRepo;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public ProductoController(ApplicationDBContext db, IWebHostEnvironment webHostEnvironment)
+        public ProductoController(IProductoRepositorio prodRepo, IWebHostEnvironment webHostEnvironment)
         {
-            _db = db;
+            _prodRepo = prodRepo;
             _webHostEnvironment = webHostEnvironment;
         }
         public IActionResult Index()
         {
-            IEnumerable<Producto> lista = _db.Producto.Include(c => c.Categoria)
-                                                       .Include(t => t.TipoAplicacion);
+            // IEnumerable<Producto> lista = _db.Producto.Include(c => c.Categoria)
+            //                                          .Include(t => t.TipoAplicacion);
+            IEnumerable<Producto> lista = _prodRepo.ObtenerTodos(incluirPropiedades: "Categoria,TipoAplicacion");
             return View(lista);
         }
 
@@ -35,16 +37,8 @@ namespace Rocosa.Controllers
             ProductoVM productoVM = new ProductoVM()
             {
                 Producto = new Producto(),
-                CategoriaLista = _db.Categoria.Select(c => new SelectListItem
-                {
-                    Text = c.NombreCategoria,
-                    Value = c.Id.ToString()
-                }),
-                TipoAplicacionLista = _db.TipoAplicacion.Select(t => new SelectListItem
-                {
-                    Text = t.Nombre,
-                    Value = t.Id.ToString()
-                })
+                CategoriaLista = _prodRepo.ObtenerTodosDropDownList(WC.CategoriaNombre),
+                TipoAplicacionLista = _prodRepo.ObtenerTodosDropDownList(WC.TipoAplicacionNombre),
             };
             if (Id == null) //Creamos producto
             {
@@ -52,7 +46,7 @@ namespace Rocosa.Controllers
             }
             else
             {
-                productoVM.Producto = _db.Producto.Find(Id);
+                productoVM.Producto = _prodRepo.Obtenter(Id.GetValueOrDefault());
 
                 if (productoVM.Producto == null)
                     return NotFound();
@@ -82,12 +76,12 @@ namespace Rocosa.Controllers
                     }
 
                     productoVM.Producto.ImagenUrl = fileName + extension; //en la db solo guardo el nombre de la img
-                    _db.Producto.Add(productoVM.Producto);
+                    _prodRepo.Agregar(productoVM.Producto);
                 }
                 else
                 {
                     //Actualizar producto
-                    var objProducto = _db.Producto.AsNoTracking().FirstOrDefault(p => p.Id == productoVM.Producto.Id);
+                    var objProducto = _prodRepo.ObtenerPrimero(p => p.Id == productoVM.Producto.Id, isTracking:false);
 
                     if (files.Count > 0) //Si está intentando cargr una nueva img
                     {
@@ -111,25 +105,17 @@ namespace Rocosa.Controllers
                     {
                         productoVM.Producto.ImagenUrl = objProducto.ImagenUrl;
                     }
-                    _db.Producto.Update(productoVM.Producto);
+                    _prodRepo.Actualizar(productoVM.Producto);
                 }
 
-                _db.SaveChanges();
+                _prodRepo.Guardar();
                 return RedirectToAction(nameof(Index));
             }
             else //Si el modelo no es valido
             {
                 //se cargan las listas nuevamente
-                productoVM.CategoriaLista = _db.Categoria.Select(c => new SelectListItem
-                {
-                    Text = c.NombreCategoria,
-                    Value = c.Id.ToString()
-                });
-                productoVM.TipoAplicacionLista = _db.TipoAplicacion.Select(t => new SelectListItem
-                {
-                    Text = t.Nombre,
-                    Value = t.Id.ToString()
-                });
+                productoVM.CategoriaLista = _prodRepo.ObtenerTodosDropDownList(WC.CategoriaNombre);
+                productoVM.TipoAplicacionLista = _prodRepo.ObtenerTodosDropDownList(WC.TipoAplicacionNombre);
                 return View(productoVM);
             }
 
@@ -143,9 +129,7 @@ namespace Rocosa.Controllers
                 return NotFound();
             }
 
-            Producto producto = _db.Producto.Include(c => c.Categoria)
-                                            .Include(t => t.TipoAplicacion)
-                                            .FirstOrDefault(p => p.Id == Id);
+            Producto producto = _prodRepo.ObtenerPrimero(p => p.Id == Id, incluirPropiedades:"Categoria,TipoAplicacion");
             if (producto == null)
             {
                 return NotFound();
@@ -171,8 +155,8 @@ namespace Rocosa.Controllers
                 System.IO.File.Delete(anteriorFile);    
             }
             //Ahora si, eliminamos producto
-            _db.Producto.Remove(producto);
-            _db.SaveChanges();
+            _prodRepo.Remover(producto);
+            _prodRepo.Guardar();
             return RedirectToAction(nameof(Index));
         }
 

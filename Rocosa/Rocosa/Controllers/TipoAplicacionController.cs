@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rocosa_AccesoDatos.Datos;
+using Rocosa_AccesoDatos.Datos.Repositorio.IRepositorio;
 using Rocosa_Modelos;
 using Rocosa_Utilidades;
 
@@ -9,15 +10,15 @@ namespace Rocosa.Controllers
     [Authorize(Roles = WC.AdminRole)]
     public class TipoAplicacionController : Controller
     {
-        private readonly ApplicationDBContext _db;
+        private readonly ITipoAplicacionRepositorio _tipoRepo;
 
-        public TipoAplicacionController(ApplicationDBContext db)
+        public TipoAplicacionController(ITipoAplicacionRepositorio tipoRepo)
         {
-            _db = db;
+            _tipoRepo = tipoRepo;
         }
         public IActionResult Index()
         {
-            IEnumerable<TipoAplicacion> lista = _db.TipoAplicacion;
+            IEnumerable<TipoAplicacion> lista = _tipoRepo.ObtenerTodos();
 
             return View(lista);
         }
@@ -34,8 +35,8 @@ namespace Rocosa.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.TipoAplicacion.Add(tipoAplicacion);
-                _db.SaveChanges();
+                _tipoRepo.Agregar(tipoAplicacion);
+                _tipoRepo.Guardar();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -49,7 +50,7 @@ namespace Rocosa.Controllers
             {
                 return NotFound();
             }
-            var obj = _db.TipoAplicacion.Find(Id);
+            var obj = _tipoRepo.Obtenter(Id.GetValueOrDefault());
             if (obj == null)
             {
                 return NotFound();
@@ -64,8 +65,8 @@ namespace Rocosa.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.TipoAplicacion.Update(tipoAplicacion);
-                _db.SaveChanges();
+               _tipoRepo.Actualizar(tipoAplicacion);
+                _tipoRepo.Guardar();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -79,7 +80,7 @@ namespace Rocosa.Controllers
             {
                 return NotFound();
             }
-            var obj = _db.TipoAplicacion.Find(Id);
+            var obj = _tipoRepo.Obtenter(Id.GetValueOrDefault());
             if (obj == null)
             {
                 return NotFound();
@@ -96,8 +97,8 @@ namespace Rocosa.Controllers
             {
                 return NotFound();
             }
-            _db.TipoAplicacion.Remove(tipoAplicacion);
-            _db.SaveChanges();
+            _tipoRepo.Remover(tipoAplicacion);
+            _tipoRepo.Guardar();
             return RedirectToAction(nameof(Index));
         }
     }

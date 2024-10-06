@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Rocosa_Modelos\Rocosa_Modelos.csproj" />
+    <ProjectReference Include="..\Rocosa_Utilidades\Rocosa_Utilidades.csproj" />
   </ItemGroup>
 
 </Project>

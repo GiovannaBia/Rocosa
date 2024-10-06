@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rocosa_AccesoDatos.Datos;
+using Rocosa_AccesoDatos.Datos.Repositorio.IRepositorio;
 using Rocosa_Modelos;
 using Rocosa_Utilidades;
 
@@ -9,15 +10,15 @@ namespace Rocosa.Controllers
     [Authorize(Roles = WC.AdminRole)]
     public class CategoriaController : Controller
     {
-        private readonly ApplicationDBContext _db;
+        private readonly ICategoriaRepositorio _catRepo;
 
-        public CategoriaController(ApplicationDBContext db)
+        public CategoriaController(ICategoriaRepositorio catRepo)
         {
-            _db = db;
+            _catRepo = catRepo;
         }
         public IActionResult Index()
         {
-            IEnumerable<Categoria> lista = _db.Categoria;
+            IEnumerable<Categoria> lista = _catRepo.ObtenerTodos();
 
             return View(lista);
         }
@@ -34,8 +35,8 @@ namespace Rocosa.Controllers
         {
             if(ModelState.IsValid)
             {
-                _db.Categoria.Add(categoria);
-                _db.SaveChanges();
+                _catRepo.Agregar(categoria);
+                _catRepo.Guardar();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -49,7 +50,7 @@ namespace Rocosa.Controllers
             {
                 return NotFound();
             }
-            var obj = _db.Categoria.Find(Id);
+            var obj = _catRepo.Obtenter(Id.GetValueOrDefault());
             if (obj == null) {
                 return NotFound();
             }
@@ -63,8 +64,8 @@ namespace Rocosa.Controllers
         {
             if (ModelState.IsValid)
             {
-                _db.Categoria.Update(categoria);
-                _db.SaveChanges();
+                _catRepo.Actualizar(categoria);
+                _catRepo.Guardar();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -78,7 +79,7 @@ namespace Rocosa.Controllers
             {
                 return NotFound();
             }
-            var obj = _db.Categoria.Find(Id);
+            var obj = _catRepo.Obtenter(Id.GetValueOrDefault());
             if (obj == null)
             {
                 return NotFound();
@@ -95,8 +96,8 @@ namespace Rocosa.Controllers
             {
                 return NotFound();
             }
-            _db.Categoria.Remove(categoria);
-            _db.SaveChanges();
+           _catRepo.Remover(categoria);
+            _catRepo.Guardar();
             return RedirectToAction(nameof(Index));
         }
     }

@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rocosa_AccesoDatos.Datos;
+using Rocosa_AccesoDatos.Datos.Repositorio;
+using Rocosa_AccesoDatos.Datos.Repositorio.IRepositorio;
 using Rocosa_Modelos;
 using Rocosa_Modelos.ViewModels;
 using Rocosa_Utilidades;
@@ -10,17 +12,19 @@ namespace Rocosa.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ApplicationDBContext _db;
-        public HomeController(ApplicationDBContext db)
+        private readonly IProductoRepositorio _prodRepo;
+        private readonly ICategoriaRepositorio _categoriaRepo;
+        public HomeController(IProductoRepositorio prodRepo, ICategoriaRepositorio categoriaRepo)
         {
-                _db = db;
+            _prodRepo = prodRepo;
+            _categoriaRepo = categoriaRepo;
         }
         public IActionResult Index()
         {
             HomeVM homeVM = new HomeVM()
             {
-                Productos = _db.Producto.Include(c=>c.Categoria).Include(t=>t.TipoAplicacion),
-                Categorias = _db.Categoria
+                Productos = _prodRepo.ObtenerTodos(incluirPropiedades:"Categoria,TipoAplicacion"),
+                Categorias = _categoriaRepo.ObtenerTodos()
             };
 
             return View(homeVM);
@@ -36,8 +40,7 @@ namespace Rocosa.Controllers
             }
             DetalleVM detalleVM = new DetalleVM()
             {
-                Producto = _db.Producto.Include(c => c.Categoria).Include(t => t.TipoAplicacion).
-                                        Where(p => p.Id == Id).FirstOrDefault(),
+                Producto = _prodRepo.ObtenerPrimero(p=> p.Id == Id,incluirPropiedades:"Categoria,TipoAplicacion"),
                 ExisteEnCarro = false
             };
 

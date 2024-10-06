@@ -13,6 +13,8 @@ namespace Rocosa_AccesoDatos.Datos
         public DbSet<TipoAplicacion> TipoAplicacion { get; set; }
         public DbSet<Producto> Producto { get; set; }
         public DbSet<UsuarioAplicacion> UsuarioAplicacion { get; set; }
+        public DbSet<Orden> Orden { get; set; }
+        public DbSet<OrdenDetalle> OrdenDetalle { get; set; }   
 
     }
 }
