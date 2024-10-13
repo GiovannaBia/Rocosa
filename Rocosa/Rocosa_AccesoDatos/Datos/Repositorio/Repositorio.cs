@@ -86,5 +86,10 @@ namespace Rocosa_AccesoDatos.Datos.Repositorio
         {
             dbSet.Remove(entidad);
         }
+
+        public void RemoverRango(IEnumerable<T> entidad)
+        {
+            dbSet.RemoveRange(entidad);
+        }
     }
 }
