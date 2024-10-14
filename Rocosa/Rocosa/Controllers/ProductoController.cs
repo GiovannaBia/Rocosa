@@ -77,6 +77,7 @@ namespace Rocosa.Controllers
 
                     productoVM.Producto.ImagenUrl = fileName + extension; //en la db solo guardo el nombre de la img
                     _prodRepo.Agregar(productoVM.Producto);
+                    TempData[WC.Exitosa] = "Creado";
                 }
                 else
                 {
@@ -106,9 +107,18 @@ namespace Rocosa.Controllers
                         productoVM.Producto.ImagenUrl = objProducto.ImagenUrl;
                     }
                     _prodRepo.Actualizar(productoVM.Producto);
+                    TempData[WC.Exitosa] = "Actualizado";
                 }
 
                 _prodRepo.Guardar();
+                if (TempData[WC.Exitosa] == "Creado")
+                {
+                    TempData[WC.Exitosa] = "Producto agregado exitosamente";
+                }
+                else if ((TempData[WC.Exitosa] == "Actualizado"))
+                {
+                    TempData[WC.Exitosa] = "Producto actualizado exitosamente";
+                }
                 return RedirectToAction(nameof(Index));
             }
             else //Si el modelo no es valido
@@ -117,6 +127,7 @@ namespace Rocosa.Controllers
                 productoVM.CategoriaLista = _prodRepo.ObtenerTodosDropDownList(WC.CategoriaNombre);
                 productoVM.TipoAplicacionLista = _prodRepo.ObtenerTodosDropDownList(WC.TipoAplicacionNombre);
                 return View(productoVM);
+                TempData[WC.Error] = "Error en la carga de producto";
             }
 
         }
@@ -157,6 +168,7 @@ namespace Rocosa.Controllers
             //Ahora si, eliminamos producto
             _prodRepo.Remover(producto);
             _prodRepo.Guardar();
+            TempData[WC.Exitosa] = "Producto eliminado";
             return RedirectToAction(nameof(Index));
         }
 

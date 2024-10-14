@@ -58,6 +58,7 @@ namespace Rocosa.Controllers
             HttpContext.Session.Clear();
             HttpContext.Session.Set(WC.SessionCarroCompras, carroComprasLista);
             HttpContext.Session.Set(WC.SessionOrdenId, OrdenVM.Orden.Id);
+            TempData[WC.Exitosa] = "Orden generada correctamente";
 
             return RedirectToAction("Index", "Carro");
         }
@@ -71,6 +72,7 @@ namespace Rocosa.Controllers
             _ordenDetalleRepo.RemoverRango(ordenDetalles);
             _ordenRepo.Remover(orden);
             _ordenRepo.Guardar();
+            TempData[WC.Exitosa] = "Orden eliminada";
 
             return RedirectToAction(nameof(Index));
         }

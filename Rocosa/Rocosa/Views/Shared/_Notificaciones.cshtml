@@ -1,0 +1,18 @@
+﻿ @using Rocosa_Utilidades;
+
+@if(TempData[WC.Exitosa] != null)
+{
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script>
+        toastr.success('@TempData[WC.Exitosa]');
+    </script>
+}
+@if (TempData[WC.Error] != null)
+{
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script>
+        toastr.error('@TempData[WC.Error]');
+    </script>
+}

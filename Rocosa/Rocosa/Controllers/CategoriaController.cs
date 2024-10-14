@@ -37,9 +37,11 @@ namespace Rocosa.Controllers
             {
                 _catRepo.Agregar(categoria);
                 _catRepo.Guardar();
+                TempData[WC.Exitosa] = "Categoría creada exitosamente";
 
                 return RedirectToAction(nameof(Index));
             }
+            TempData[WC.Error] = "Error al crear categoría";
             return View(categoria); //Así en lugar de retornar al Index, retorna la vista Crear con las validaciones en rojo
         }
 
@@ -66,9 +68,11 @@ namespace Rocosa.Controllers
             {
                 _catRepo.Actualizar(categoria);
                 _catRepo.Guardar();
+                TempData[WC.Exitosa] = "Categoría editada exitosamente";
 
                 return RedirectToAction(nameof(Index));
             }
+            TempData[WC.Error] = "Error al editar categoría";
             return View(categoria); //Así en lugar de retornar al Index, retorna la vista Editar con las validaciones en rojo
         }
 
@@ -97,7 +101,9 @@ namespace Rocosa.Controllers
                 return NotFound();
             }
            _catRepo.Remover(categoria);
-            _catRepo.Guardar();
+           _catRepo.Guardar();
+            TempData[WC.Exitosa] = "Categoría eliminada";
+
             return RedirectToAction(nameof(Index));
         }
     }

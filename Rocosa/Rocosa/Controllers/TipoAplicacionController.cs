@@ -37,9 +37,11 @@ namespace Rocosa.Controllers
             {
                 _tipoRepo.Agregar(tipoAplicacion);
                 _tipoRepo.Guardar();
+                TempData[WC.Exitosa] = "Tipo de aplicación creado exitosamente";
 
                 return RedirectToAction(nameof(Index));
             }
+            TempData[WC.Error] = "Error al crear el tipo de aplicación";
             return View(tipoAplicacion); //Así en lugar de retornar al Index, retorna la vista Crear con las validaciones en rojo
         }
 
@@ -67,9 +69,11 @@ namespace Rocosa.Controllers
             {
                _tipoRepo.Actualizar(tipoAplicacion);
                 _tipoRepo.Guardar();
+                TempData[WC.Exitosa] = "Tipo de aplicación editado";
 
                 return RedirectToAction(nameof(Index));
             }
+            TempData[WC.Error] = "Error al editar tipo de aplicación";
             return View(tipoAplicacion); //Así en lugar de retornar al Index, retorna la vista Editar con las validaciones en rojo
         }
 
@@ -99,6 +103,7 @@ namespace Rocosa.Controllers
             }
             _tipoRepo.Remover(tipoAplicacion);
             _tipoRepo.Guardar();
+            TempData[WC.Exitosa] = "Tipo de aplicacion eliminado";
             return RedirectToAction(nameof(Index));
         }
     }
