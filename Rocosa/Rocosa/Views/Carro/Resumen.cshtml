@@ -1,4 +1,5 @@
-﻿@model Rocosa_Modelos.ViewModels.ProductoUsuarioVM
+﻿@using Rocosa_Utilidades
+@model Rocosa_Modelos.ViewModels.ProductoUsuarioVM
 
 <form method="post">
     <br />
@@ -28,7 +29,7 @@
                                         <label>Nombres</label>
                                     </div>
                                     <div class="col-9">
-                                        <input asp-for="UsuarioAplicacion.NombreCompleto" type="text" class="form-control" />
+                                        <input asp-for="UsuarioAplicacion.NombreCompleto" type="text" class="form-control" id="nombre"/>
                                         <span asp-validation-for="UsuarioAplicacion.NombreCompleto" class="text-danger"></span>
                                     </div>
                                 </div>
@@ -37,7 +38,7 @@
                                         <label>Telefono</label>
                                     </div>
                                     <div class="col-9">
-                                        <input asp-for="UsuarioAplicacion.PhoneNumber" type="text" class="form-control" />
+                                        <input asp-for="UsuarioAplicacion.PhoneNumber" type="text" class="form-control" id="telefono" />
                                         <span asp-validation-for="UsuarioAplicacion.PhoneNumber" class="text-danger"></span>
                                     </div>
                                 </div>
@@ -46,8 +47,26 @@
                                         <label>Email</label>
                                     </div>
                                     <div class="col-9">
-                                        <input asp-for="UsuarioAplicacion.Email" type="text" class="form-control" />
+                                        <input asp-for="UsuarioAplicacion.Email" type="text" class="form-control" id="correo" />
                                         <span asp-validation-for="UsuarioAplicacion.Email" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="row my-1">
+                                    <div class="col-3">
+                                        <label>Dirección</label>
+                                    </div>
+                                    <div class="col-9">
+                                        <input asp-for="UsuarioAplicacion.Direccion" type="text" class="form-control" id="direccion" />
+                                        <span asp-validation-for="UsuarioAplicacion.Direccion" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="row my-1">
+                                    <div class="col-3">
+                                        <label>Ciudad</label>
+                                    </div>
+                                    <div class="col-9">
+                                        <input asp-for="UsuarioAplicacion.Ciudad" type="text" class="form-control" id="ciudad" />
+                                        <span asp-validation-for="UsuarioAplicacion.Ciudad" class="text-danger"></span>
                                     </div>
                                 </div>
                             </div>
@@ -57,6 +76,11 @@
                                         <span class="text-info">Resumen:</span>
                                     </h4>
                                     <ul class="list-group mb-3">
+
+                                        @{
+                                            var TotalOrden = 0.0;
+                                        }
+
                                         @for(int i=0; i<Model.ProductoLista.Count(); i++)
                                         {
                                             <input type="hidden" asp-for="@Model.ProductoLista[i].Id" />
@@ -64,11 +88,30 @@
                                             <li class="list-group-item d-flex justify-content-between">
                                                 <div>
                                                     <h6 class="my-0">@Model.ProductoLista[i].NombreProducto</h6>
-                                                    <small class="text-muted">Precio por m &sup2: @Model.ProductoLista[i].Precio</small>
+                                                    @if (User.IsInRole(WC.AdminRole))
+                                                    {
+                                                        <small class="text-muted">Precio por m &sup2: @Model.ProductoLista[i].TempMetroCuadrado</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <small class="text-muted">Precio por m &sup2: @Model.ProductoLista[i].Precio</small>                                                 
+                                                    }
                                                 </div>
+                                                @if (User.IsInRole(WC.AdminRole))
+                                                {
+                                                    <span class="text-muted">$@(Model.ProductoLista[i].TempMetroCuadrado * Model.ProductoLista[i].Precio)</span>
+                                                }
+                                            </li>
+
+                                            TotalOrden+=(Model.ProductoLista[i].TempMetroCuadrado * Model.ProductoLista[i].Precio);
+                                        }
+                                        @if (User.IsInRole(WC.AdminRole))
+                                        {
+                                            <li class="list-group-item d-flex justify-content-between bg-white">
+                                                <small class="text-info">Total</small>
+                                                <strong class="text-info">$@TotalOrden</strong>
                                             </li>
                                         }
-
                                     </ul>
                                 </div>
                             </div>
@@ -78,7 +121,14 @@
                 <div class="card-footer">
                     <div class="row">
                         <div class="col-12 col-md-5 offset-md-7">
-                            <button type="submit" class="btn btn-primary form-control">Enviar Orden</button>
+                            @if (User.IsInRole(WC.AdminRole))
+                            {
+                                <button type="submit" onclick="return validarDatos()" class="btn btn-success form-control">Crear Venta</button>
+                            }
+                            else
+                            {
+                                <button type="submit" onclick="return validarDatos()" class="btn btn-primary form-control">Enviar Orden</button>
+                            }
                         </div>
                     </div>
                 </div>
@@ -90,6 +140,21 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function validarDatos(){
+            if(document.getElementById("nombre").value == ""
+              || document.getElementById("telefono").value == ""
+              || document.getElementById("correo").value == ""
+              || document.getElementById("direccion").value == ""
+              || document.getElementById("ciudad").value == "")
+                {
+                swal("Error", "Los datos del usuario son obligatorios.", "error");
+                return false; //para que no continue con la ejecucion del btn submit
+                }
+            return true;
+        }
+    </script>
 }
 
 

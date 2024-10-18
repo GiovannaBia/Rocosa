@@ -6,6 +6,11 @@ namespace Rocosa_Modelos
 {
     public class Producto
     {
+        public Producto()
+        {
+            TempMetroCuadrado = 1;
+        }
+
         [Key]
         public int Id { get; set; }
 
@@ -31,5 +36,10 @@ namespace Rocosa_Modelos
         public int TipoAplicacionId {  get; set; }
         [ForeignKey("TipoAplicacionId")]
         public virtual TipoAplicacion? TipoAplicacion { get; set; }
+
+        //Propiedad temporal
+        [NotMapped]
+        [Range(1, 10000)]
+        public int TempMetroCuadrado { get; set;  }
     }
 }

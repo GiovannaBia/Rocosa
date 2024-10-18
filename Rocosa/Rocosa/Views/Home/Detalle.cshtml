@@ -1,4 +1,5 @@
-﻿@model Rocosa_Modelos.ViewModels.DetalleVM
+﻿@using Rocosa_Utilidades
+@model Rocosa_Modelos.ViewModels.DetalleVM
 <div class="">
     <form method="post">
         <input asp-for="@Model.Producto.Id" hidden />
@@ -28,6 +29,25 @@
 
                                         <p class="text-secondary">@Html.Raw(Model.Producto.DescripcionProducto)</p>
                                     </div>
+
+                                    @if (User.IsInRole(WC.AdminRole))
+                                    {
+                                        <div class="col-12">
+                                            Mtr Cuadrado:
+                                        </div>
+                                        <div class="col-12">
+                                            @if (Model.ExisteEnCarro)
+                                            {
+                                                <input asp-for="@Model.Producto.TempMetroCuadrado" disabled class="form-control" />
+                                            }
+                                            else
+                                            {
+                                                <input asp-for="@Model.Producto.TempMetroCuadrado" class="form-control" />
+
+                                            }
+                                            <span asp-validation-for="@Model.Producto.TempMetroCuadrado" class="text-danger"></span>
+                                        </div>
+                                    }
 
                                 </div>
                             </div>

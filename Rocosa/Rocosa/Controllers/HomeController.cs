@@ -56,7 +56,7 @@ namespace Rocosa.Controllers
         }
 
         [HttpPost, ActionName("Detalle")]
-        public IActionResult DetallePost(int Id)
+        public IActionResult DetallePost(int Id, DetalleVM detalleVM)
         {
             List<CarroCompras> carroComprasLista = new List<CarroCompras>();
             if(HttpContext.Session.Get<IEnumerable<CarroCompras>>(WC.SessionCarroCompras) != null && 
@@ -64,8 +64,10 @@ namespace Rocosa.Controllers
             {
                 carroComprasLista = HttpContext.Session.Get<List<CarroCompras>>(WC.SessionCarroCompras);
             }
-            carroComprasLista.Add(new CarroCompras() { ProductoId = Id });
+            carroComprasLista.Add(new CarroCompras() { ProductoId = Id, MetroCuadrado = detalleVM.Producto.TempMetroCuadrado });
             HttpContext.Session.Set(WC.SessionCarroCompras, carroComprasLista);
+
+            TempData[WC.Exitosa] = "Agregado al carrito!";
 
             return RedirectToAction(nameof(Index));
         }

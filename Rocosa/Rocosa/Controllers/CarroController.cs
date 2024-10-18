@@ -37,21 +37,67 @@ namespace Rocosa.Controllers
             }
             List<int> prodEnCarro = carroComprasList.Select(i => i.ProductoId).ToList(); //Lista de ids de los productos
             IEnumerable<Producto> prodList = _prodRepo.ObtenerTodos(p => prodEnCarro.Contains(p.Id)); //Busco en db los prductos que contengan esos ids 
-            return View(prodList); 
+            List<Producto> prodListFinal = new List<Producto>();
+            foreach (var prod in carroComprasList) 
+            {
+                Producto prodTemp = prodList.FirstOrDefault(p => p.Id == prod.ProductoId);
+                prodTemp.TempMetroCuadrado = prod.MetroCuadrado;
+                prodListFinal.Add(prodTemp);
+            }
+            
+            return View(prodListFinal); 
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Index")]
-        public IActionResult IndexPost()
+        public IActionResult IndexPost(IEnumerable<Producto> ProdLista)
         {
+            List<CarroCompras> carroComprasList = new List<CarroCompras>();
+
+            foreach (Producto prod in ProdLista)
+            {
+                carroComprasList.Add(new CarroCompras
+                {
+                    ProductoId = prod.Id,
+                    MetroCuadrado = prod.TempMetroCuadrado,
+                });
+            }
+            HttpContext.Session.Set(WC.SessionCarroCompras, carroComprasList);
             return RedirectToAction(nameof(Resumen));
         }
 
         public IActionResult Resumen()
         {
-            //Capturar el usuario conectado
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            UsuarioAplicacion usuarioAplicacion;
+
+            if (User.IsInRole(WC.AdminRole))
+            {
+                if(HttpContext.Session.Get<int>(WC.SessionOrdenId)!= 0)
+                {
+                    Orden orden = _ordenRepo.ObtenerPrimero(u => u.Id == HttpContext.Session.Get<int>(WC.SessionOrdenId));
+                    usuarioAplicacion = new UsuarioAplicacion()
+                    {
+                        Email = orden.Email,
+                        NombreCompleto = orden.NombreCompleto,
+                        PhoneNumber = orden.Telefono,
+                    };
+                }
+                else //Si no hay una orden 
+                {
+                    usuarioAplicacion = new UsuarioAplicacion();
+                }
+            }
+            else
+            {
+                //Capturar el usuario conectado
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+                usuarioAplicacion = _usuarioRepo.ObtenerPrimero(u=>u.Id == claim.Value);
+            }
+
+
+            
             //Capturar su carrito
             List<CarroCompras> carroComprasList = new List<CarroCompras>();
             if (HttpContext.Session.Get<IEnumerable<CarroCompras>>(WC.SessionCarroCompras) != null &&
@@ -65,10 +111,17 @@ namespace Rocosa.Controllers
             //Llenamos el viewmodel
             productoUsuarioVM = new ProductoUsuarioVM()
             {
-                UsuarioAplicacion = _usuarioRepo.ObtenerPrimero(u => u.Id == claim.Value),
-                //UsuarioAplicacion = _db.UsuarioAplicacion.FirstOrDefault(u => u.Id == claim.Value),
-                ProductoLista = prodList.ToList()
+                UsuarioAplicacion = usuarioAplicacion,
+                // ProductoLista = prodList.ToList()
             };
+
+            foreach (var carro in carroComprasList)
+            {
+                Producto prodTemp = _prodRepo.ObtenerPrimero(p => p.Id == carro.ProductoId);
+                prodTemp.TempMetroCuadrado = carro.MetroCuadrado;
+                productoUsuarioVM.ProductoLista.Add(prodTemp);
+            }
+
             return View(productoUsuarioVM);
         }
 
@@ -126,6 +179,24 @@ namespace Rocosa.Controllers
             }
             carroComprasList.Remove(carroComprasList.FirstOrDefault(p=>p.ProductoId==Id));
             HttpContext.Session.Set(WC.SessionCarroCompras, carroComprasList); //Actualizar el carro en la sesion
+
+            return RedirectToAction(nameof(Index));
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ActualizarCarro(IEnumerable<Producto> ProdLista)
+        {
+            List<CarroCompras> carroComprasList = new List<CarroCompras>();
+
+            foreach (Producto prod in ProdLista)
+            {
+                carroComprasList.Add(new CarroCompras
+                {
+                    ProductoId = prod.Id,
+                    MetroCuadrado = prod.TempMetroCuadrado,
+                });
+            }
+            HttpContext.Session.Set(WC.SessionCarroCompras, carroComprasList);
 
             return RedirectToAction(nameof(Index));
         }
