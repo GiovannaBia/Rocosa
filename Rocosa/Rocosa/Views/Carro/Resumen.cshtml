@@ -156,7 +156,7 @@
     <partial name="_ValidationScriptsPartial" />
     <script src="https://js.braintreegateway.com/web/dropin/1.43.0/js/dropin.min.js"></script>
     <script>
-        function validarDatos(){
+        function validarDatos(rol){
             if(document.getElementById("nombre").value == ""
               || document.getElementById("telefono").value == ""
               || document.getElementById("correo").value == ""
@@ -166,9 +166,10 @@
                 swal("Error", "Los datos del usuario son obligatorios.", "error");
                 return false; //para que no continue con la ejecucion del btn submit
                 }
-                if(rol == "noadmin") {
-                    form.submit();
-                }
+            if (rol == "noadmin") 
+            {
+               form.submit();
+            }
             return true;
         }
     </script>

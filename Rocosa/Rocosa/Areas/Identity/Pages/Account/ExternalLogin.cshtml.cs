@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Rocosa_Modelos;
+using Rocosa_Utilidades;
 
 namespace Rocosa.Areas.Identity.Pages.Account
 {
@@ -84,6 +86,8 @@ namespace Rocosa.Areas.Identity.Pages.Account
             [Required]
             [EmailAddress]
             public string Email { get; set; }
+            public string NombreCompleto { get; set; }
+            public string PhoneNumber { get; set; }
         }
         
         public IActionResult OnGet() => RedirectToPage("./Login");
@@ -131,7 +135,8 @@ namespace Rocosa.Areas.Identity.Pages.Account
                 {
                     Input = new InputModel
                     {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
+                        Email = info.Principal.FindFirstValue(ClaimTypes.Email),
+                        NombreCompleto = info.Principal.FindFirstValue(ClaimTypes.Name)
                     };
                 }
                 return Page();
@@ -151,7 +156,15 @@ namespace Rocosa.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                var user = CreateUser();
+                // var user = CreateUser();
+
+                var user = new UsuarioAplicacion()
+                {
+                    UserName = Input.Email,
+                    Email = Input.Email,
+                    NombreCompleto = Input.NombreCompleto,
+                    PhoneNumber = Input.PhoneNumber,
+                };
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -159,6 +172,8 @@ namespace Rocosa.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, WC.ClienteRole);
+
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
