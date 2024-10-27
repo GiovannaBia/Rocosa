@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Braintree;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rocosa_AccesoDatos.Datos;
 using Rocosa_AccesoDatos.Datos.Repositorio.IRepositorio;
 using Rocosa_Modelos;
 using Rocosa_Modelos.ViewModels;
 using Rocosa_Utilidades;
+using Rocosa_Utilidades.BrainTree;
 using System.Security.Claims;
 
 namespace Rocosa.Controllers
@@ -17,15 +19,22 @@ namespace Rocosa.Controllers
         private readonly IUsuarioAplicacionRepositorio _usuarioRepo;
         private readonly IOrdenRepositorio _ordenRepo;
         private readonly IOrdenDetalleRepositorio _ordenDetalleRepo;
+        private readonly IVentaRepositorio _ventaRepo;
+        private readonly IVentaDetalleRepositorio _ventaDetalleRepo;
+        private readonly IBrainTreeGate _brain;
+
         [BindProperty]
        public ProductoUsuarioVM productoUsuarioVM { get; set; }
-        public CarroController(IProductoRepositorio prodRepo, ICategoriaRepositorio categoriaRepo, IUsuarioAplicacionRepositorio usuarioRepo, IOrdenRepositorio ordenRepo, IOrdenDetalleRepositorio ordenDetalleRepo)
+        public CarroController(IProductoRepositorio prodRepo, ICategoriaRepositorio categoriaRepo, IUsuarioAplicacionRepositorio usuarioRepo, IOrdenRepositorio ordenRepo, IOrdenDetalleRepositorio ordenDetalleRepo, IVentaRepositorio ventaRepo, IVentaDetalleRepositorio ventaDetalleRepo, IBrainTreeGate brain )
         {
             _prodRepo = prodRepo;
             _categoriaRepo = categoriaRepo;
             _usuarioRepo = usuarioRepo;
             _ordenRepo = ordenRepo;
             _ordenDetalleRepo = ordenDetalleRepo;
+            _ventaRepo = ventaRepo;
+            _ventaDetalleRepo = ventaDetalleRepo;
+            _brain = brain;
         }
         public IActionResult Index()
         {
@@ -86,6 +95,9 @@ namespace Rocosa.Controllers
                 {
                     usuarioAplicacion = new UsuarioAplicacion();
                 }
+                var gateway = _brain.GetGateway();
+                var clientToken = gateway.ClientToken.Generate();
+                ViewBag.ClientToken = clientToken;
             }
             else
             {
@@ -128,45 +140,113 @@ namespace Rocosa.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ActionName("Resumen")]
-        public IActionResult ResumenPost(ProductoUsuarioVM productoUsuarioVM)
+        public IActionResult ResumenPost(IFormCollection collection,ProductoUsuarioVM productoUsuarioVM)
         {
             //Capturar el usuario conectado
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
-            //Grabar la orden y detalle en la DB
-            Orden orden = new Orden()
+            if (User.IsInRole(WC.AdminRole))
             {
-                UsuarioAplicacionId = claim.Value,
-                NombreCompleto = productoUsuarioVM.UsuarioAplicacion.NombreCompleto,
-                Email = productoUsuarioVM.UsuarioAplicacion.Email,
-                Telefono = productoUsuarioVM.UsuarioAplicacion.PhoneNumber,
-                FechaOrden = DateTime.Now,
-
-            };
-
-            _ordenRepo.Agregar(orden);
-            _ordenRepo.Guardar();
-
-            foreach (var prod in productoUsuarioVM.ProductoLista)
-            {
-                OrdenDetalle ordenDetalle = new OrdenDetalle()
+                //Crear venta
+                Venta venta = new Venta()
                 {
-                    OrdenId = orden.Id,
-                    ProductoId = prod.Id,
+                    CreadoPorUsusarioId = claim.Value,
+                    FinalVentaTotal = productoUsuarioVM.ProductoLista.Sum(x => x.TempMetroCuadrado * x.Precio),
+                    Direccion = productoUsuarioVM.UsuarioAplicacion.Direccion,
+                    Ciudad = productoUsuarioVM.UsuarioAplicacion.Ciudad,
+                    Telefono = productoUsuarioVM.UsuarioAplicacion.PhoneNumber,
+                    NombreCompleto = productoUsuarioVM.UsuarioAplicacion.NombreCompleto,
+                    Email = productoUsuarioVM.UsuarioAplicacion.Email,
+                    FechaVenta = DateTime.Now,
+                    EstadoVenta = WC.EstadoPendiente,
+                    TransaccionId = 0.ToString(),
                 };
-                _ordenDetalleRepo.Agregar(ordenDetalle);
+
+                _ventaRepo.Agregar(venta);
+                _ventaRepo.Guardar();
+
+                foreach (var producto in productoUsuarioVM.ProductoLista)
+                {
+                    VentaDetalle ventaDetalle = new VentaDetalle()
+                    {
+                        VentaId = venta.Id,
+                        ProductoId = producto.Id,
+                        MetroCuadrado = producto.TempMetroCuadrado,
+                        PrecioPorMetroCuadrado = producto.Precio,
+                    };
+                    _ventaDetalleRepo.Agregar(ventaDetalle);
+                }
+                _ventaDetalleRepo.Guardar();
+
+                string nonceFromTheClient = collection["payment_method_nonce"];
+
+                var request = new TransactionRequest
+                {
+                    Amount = Convert.ToDecimal(venta.FinalVentaTotal),
+                    PaymentMethodNonce = nonceFromTheClient,
+                    OrderId = venta.Id.ToString(),
+                    Options = new TransactionOptionsRequest
+                    {
+                        SubmitForSettlement = true
+                    }
+                };
+                var gateway = _brain.GetGateway();
+                Result<Transaction> result = gateway.Transaction.Sale(request);
+
+                //Modificar la venta
+                if(result.Target.ProcessorResponseText == "Approved")
+                {
+                    venta.TransaccionId = result.Target.Id;
+                    venta.EstadoVenta = WC.EstadoAprobado;
+                } 
+                else
+                {
+                    venta.EstadoVenta = WC.EstadoCancelado;
+                    venta.TransaccionId = 0.ToString();
+                }
+                _ventaRepo.Guardar();
+
+                return RedirectToAction(nameof(Confirmacion), new {id = venta.Id});
+            } 
+            else
+            {
+                //Enviar orden
+                //Grabar la orden y detalle en la DB
+                Orden orden = new Orden()
+                {
+                    UsuarioAplicacionId = claim.Value,
+                    NombreCompleto = productoUsuarioVM.UsuarioAplicacion.NombreCompleto,
+                    Email = productoUsuarioVM.UsuarioAplicacion.Email,
+                    Telefono = productoUsuarioVM.UsuarioAplicacion.PhoneNumber,
+                    FechaOrden = DateTime.Now,
+
+                };
+
+                _ordenRepo.Agregar(orden);
+                _ordenRepo.Guardar();
+
+                foreach (var prod in productoUsuarioVM.ProductoLista)
+                {
+                    OrdenDetalle ordenDetalle = new OrdenDetalle()
+                    {
+                        OrdenId = orden.Id,
+                        ProductoId = prod.Id,
+                    };
+                    _ordenDetalleRepo.Agregar(ordenDetalle);
+                }
+
+                _ordenDetalleRepo.Guardar();
+
             }
-
-            _ordenDetalleRepo.Guardar();
-
             return RedirectToAction(nameof(Confirmacion));
         }
 
-        public IActionResult Confirmacion()
+        public IActionResult Confirmacion(int id = 0)
         {
+            Venta venta = _ventaRepo.ObtenerPrimero(v => v.Id == id);
             HttpContext.Session.Clear(); //Limpio la sesion, el carro 
-            return View();  
+            return View(venta);  
         }
 
         public IActionResult Remover (int Id)
@@ -199,6 +279,13 @@ namespace Rocosa.Controllers
             HttpContext.Session.Set(WC.SessionCarroCompras, carroComprasList);
 
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Limpiar()
+        {
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Index", "Home");
         }
     }
 }

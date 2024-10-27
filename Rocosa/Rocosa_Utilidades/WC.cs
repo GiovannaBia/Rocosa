@@ -14,5 +14,12 @@
 
         public const string Exitosa = "Exitosa";
         public const string Error = "Error";
+
+        public const string EstadoPendiente = "Pendiente";
+        public const string EstadoAprobado = "Aprobado";
+        public const string EstadoEnProceso = "Procesando";
+        public const string EstadoEnviado = "Enviado";
+        public const string EstadoCancelado = "Cancelado";
+        public const string EstadoDevuelto = "Devuelto";
     }
 }

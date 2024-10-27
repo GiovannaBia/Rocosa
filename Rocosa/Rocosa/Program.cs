@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Rocosa_AccesoDatos.Datos;
 using Rocosa_AccesoDatos.Datos.Repositorio;
 using Rocosa_AccesoDatos.Datos.Repositorio.IRepositorio;
+using Rocosa_Utilidades.BrainTree;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,11 +23,17 @@ builder.Services.AddSession(Options =>
     Options.Cookie.HttpOnly = true;
     Options.Cookie.IsEssential = true;
 });
+
+builder.Services.Configure<BrainTreeSettings>(builder.Configuration.GetSection("BrainTree")); //Rerlacionamos la clase con el archivo appsettings
+builder.Services.AddSingleton<IBrainTreeGate, BrainTreeGate>();
+
 builder.Services.AddScoped<ICategoriaRepositorio, CategoriaRepositorio>();
 builder.Services.AddScoped<ITipoAplicacionRepositorio, TipoAplicacionRepositorio>();
 builder.Services.AddScoped<IProductoRepositorio, ProductoRepositorio>();
 builder.Services.AddScoped<IOrdenRepositorio, OrdenRepositorio>();
 builder.Services.AddScoped<IOrdenDetalleRepositorio, OrdenDetalleRepositorio>();
+builder.Services.AddScoped<IVentaRepositorio, VentaRepositorio>();
+builder.Services.AddScoped<IVentaDetalleRepositorio, VentaDetalleRepositorio>();
 builder.Services.AddScoped<IUsuarioAplicacionRepositorio, UsuarioAplicacionRepositorio>();
 
 var app = builder.Build();

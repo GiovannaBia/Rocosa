@@ -1,7 +1,7 @@
 ﻿@using Rocosa_Utilidades
 @model Rocosa_Modelos.ViewModels.ProductoUsuarioVM
 
-<form method="post">
+<form method="post" id="payment-form">
     <br />
     <div class="backgroundWhiteBorder">
         <div class="container">
@@ -85,6 +85,8 @@
                                         {
                                             <input type="hidden" asp-for="@Model.ProductoLista[i].Id" />
                                             <input type="hidden" asp-for="@Model.ProductoLista[i].NombreProducto" />
+                                            <input type="hidden" asp-for="@Model.ProductoLista[i].Precio" />
+                                            <input type="hidden" asp-for="@Model.ProductoLista[i].TempMetroCuadrado" />
                                             <li class="list-group-item d-flex justify-content-between">
                                                 <div>
                                                     <h6 class="my-0">@Model.ProductoLista[i].NombreProducto</h6>
@@ -114,6 +116,18 @@
                                         }
                                     </ul>
                                 </div>
+
+                                @if(User.IsInRole(WC.AdminRole))
+                                {
+                                    <div class="col-12">
+                                        <div class="wrapper">
+                                            <div class="checkout container">
+                                                <div id="dropin-container"></div>
+                                                <input type="hidden" id="nonce" name="payment_method_nonce" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -123,11 +137,11 @@
                         <div class="col-12 col-md-5 offset-md-7">
                             @if (User.IsInRole(WC.AdminRole))
                             {
-                                <button type="submit" onclick="return validarDatos()" class="btn btn-success form-control">Crear Venta</button>
+                                <button type="submit" onclick="return validarDatos('admin')" class="btn btn-success form-control">Crear Venta</button>
                             }
                             else
                             {
-                                <button type="submit" onclick="return validarDatos()" class="btn btn-primary form-control">Enviar Orden</button>
+                                <button type="submit" onclick="return validarDatos('noadmin')" class="btn btn-primary form-control">Enviar Orden</button>
                             }
                         </div>
                     </div>
@@ -140,7 +154,7 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
+    <script src="https://js.braintreegateway.com/web/dropin/1.43.0/js/dropin.min.js"></script>
     <script>
         function validarDatos(){
             if(document.getElementById("nombre").value == ""
@@ -152,8 +166,38 @@
                 swal("Error", "Los datos del usuario son obligatorios.", "error");
                 return false; //para que no continue con la ejecucion del btn submit
                 }
+                if(rol == "noadmin") {
+                    form.submit();
+                }
             return true;
         }
+    </script>
+    <script>
+        const form = document.getElementById('payment-form');
+        const client_token = "@ViewBag.ClientToken";
+        braintree.dropin.create({
+          authorization: client_token,
+          container: '#dropin-container'
+        }, (error, dropinInstance) => {
+          if (error) console.error(error);
+
+          form.addEventListener('submit', event => {
+            event.preventDefault();
+
+            dropinInstance.requestPaymentMethod((error, payload) => {
+              if (error) console.error(error);
+
+              // Step four: when the user is ready to complete their
+              //   transaction, use the dropinInstance to get a payment
+              //   method nonce for the user's selected payment method, then add
+              //   it a the hidden field before submitting the complete form to
+              //   a server-side integration
+              document.getElementById('nonce').value = payload.nonce;
+              form.submit();
+            });
+          });
+        });
+
     </script>
 }
 

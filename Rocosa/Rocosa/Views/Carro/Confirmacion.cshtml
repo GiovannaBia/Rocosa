@@ -1,6 +1,17 @@
-﻿
+﻿@model Rocosa_Modelos.Venta  
+
 <div class="text-center">
-    <h1 class="text-info">Confirmación </h1>
-    <p>Hemos recibido tu consulta, un miembro de nuestro equipo se contactará contigo.</p>
-    <img src="/imagenes/patio.jpg" width="80%"/>
+
+    @if(Model != null)
+    {
+        <h1>Venta creada</h1>
+        <p>Venta @Model.Id creada satisfactoriamente..</p>
+    }
+    else
+    {
+        <h1 class="text-info">Confirmación </h1>
+        <p>Hemos recibido tu consulta, un miembro de nuestro equipo se contactará contigo.</p>
+        
+    }
+    <img src="/imagenes/patio.jpg" width="80%" />
 </div>
