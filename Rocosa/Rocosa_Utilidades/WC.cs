@@ -1,4 +1,6 @@
-﻿namespace Rocosa_Utilidades
+﻿using System.Collections.ObjectModel;
+
+namespace Rocosa_Utilidades
 {
     public static class WC
     {
@@ -21,5 +23,11 @@
         public const string EstadoEnviado = "Enviado";
         public const string EstadoCancelado = "Cancelado";
         public const string EstadoDevuelto = "Devuelto";
+
+        public static readonly IEnumerable<string> ListaEstados = new ReadOnlyCollection<string>(
+            new List<string>
+            {
+                EstadoPendiente, EstadoAprobado, EstadoEnProceso, EstadoCancelado, EstadoDevuelto, EstadoEnviado
+            });
     }
 }
